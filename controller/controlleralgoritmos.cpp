@@ -27,27 +27,28 @@ void controllerAlgoritmos::execute_limiarizacao(float threshold, bool moment, co
             octave_value_list readimg;
             std::string nome_img = contImg->list_image[contImg->qt - 1].get_nome_img();
 
-            
             //Le imagem
             readimg(0) = nome_img;
 
-
+            //Executa o imread(img)
             octave_value_list img_octave;
             img_octave(0) = octave_value(octave::feval("imread", readimg(0)));
 
             //Aplica filtro
-            octave_value_list param;
+            octave_value_list param = octave_value(img_octave(0));
             octave_value_list out_img;
             if (moment != true){
-                param(0) = octave_value(threshold);
+                std::cout << threshold << std::endl;
+                param(1) = threshold;
             }else{
-                param(0) = octave_value("moments");
+                param(1) = octave_value("moments");
             }
-            out_img(0) = octave_value(octave::feval("im2bw", param(0)));
+            out_img(0) = octave_value(octave::feval("im2bw", param,1));
 
             //Salva Imagem
             //Cria a lista de argumentos para salvar a imagem
             octave_value_list save;
+            save(0) = octave_value(out_img(0));
             save(1) = octave_value("image" + contImg->qt);
             save(2) = octave_value("png");
             octave::feval("imwrite", save, 2); //Salva a imagem com a lista de argumentos n2
