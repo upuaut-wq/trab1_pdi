@@ -53,15 +53,11 @@ mainWindow::mainWindow(){
     //Signal novo filtro
     this->m_nov_filt.signal_clicked().connect(sigc::mem_fun0(*this,&mainWindow::on_novo_filt));
 
-    //cria sinal configurar
-    this->m_btn_algo.signal_clicked().connect(sigc::mem_fun0(*this,&mainWindow::on_config_algo));
-
     //Mostra tudo
     this->show_all();
 
     //Motra tudo menos
-    this->m_btn_aplic.hide();
-    this->m_box_list.hide();
+    this->m_box_lim.hide();
 }
 
 mainWindow::~mainWindow(){
@@ -102,6 +98,12 @@ void mainWindow::cria_menu_superior(){
 //-> Configuração dos algoritmos
 void mainWindow::cria_janela_config(){
     this->m_box_dir.pack_start(this->m_box_conf,Gtk::PACK_SHRINK);
+    this->m_box_dir.pack_start(m_sep_dir,Gtk::PACK_SHRINK);
+    this->m_box_dir.pack_start(m_box_status,Gtk::PACK_SHRINK);
+    this->m_box_status.set_valign(Gtk::ALIGN_END);
+    this->m_box_status.pack_start(this->m_qt_img,Gtk::PACK_SHRINK);
+    this->m_qt_img.set_valign(Gtk::ALIGN_END);
+
 }
 
 //Apresenta a imagem padrao na tela.
@@ -116,6 +118,7 @@ void mainWindow::cria_image(){
     this->m_label.set_text("Carregar Imagem");
     Glib::RefPtr<Gdk::Pixbuf> ref_img_p = Gdk::Pixbuf::create_from_file("img/img_init.png");
     this->m_img.set(ref_img_p);
+    this->m_qt_img.set_text("List Imagem : 0");
 }
 
 //Cria menu inferior, apresenta a sequencia de filtros aplicados
@@ -133,9 +136,7 @@ void mainWindow::cria_menu_inferior(){
 void mainWindow::cria_lista(){
     Glib::ustring nomes[] = {"Algorimo1","Limiarização","Escala de Cinza","Passa-Alta","Passa-Baixa","Roberts","Prewitt","Sobel","Log","Zerocross","Canny","Ruídos","Watershed","Histograma","Ajuste adaptativo de histograma","Cont limiarizados"};
     this->m_label_list.set_text("Algoritmo");
-    this->m_box_list.set_border_width(10);
     this->m_label_list.set_valign(Gtk::ALIGN_START);
-    this->m_label_list.set_margin_bottom(10);
     this->m_box_list.set_orientation(Gtk::ORIENTATION_VERTICAL);
 
     //Empacota
@@ -150,7 +151,11 @@ void mainWindow::cria_lista(){
         this->m_box_alg.pack_start(this->m_radio_btns[i]);
         this->m_radio_btns[i].set_group(this->m_grupo_rb);
     }
+    this->m_aplic_alg.set_label("Configurar");
+    this->m_box_alg.pack_start(this->m_aplic_alg);
     this->m_box_conf.pack_start(this->m_box_list);
+    this->m_aplic_alg.signal_clicked().connect(sigc::mem_fun0(*this,&mainWindow::on_config_algo));
+    
 }
 
 
@@ -190,17 +195,21 @@ void mainWindow::cria_lista(){
 void mainWindow::on_load_image(){
     Glib::ustring nome_img = this->m_ent_load_img.get_text();
     modelImage img = ci->load_image(nome_img);
-    this->m_ref_img = Gdk::Pixbuf::create_from_file("img/"+nome_img,400,-1); 
+    this->m_ref_img = Gdk::Pixbuf::create_from_file(nome_img,400,-1); 
     this->m_img.set(this->m_ref_img);
     this->m_label.set_text(img.get_filtro());
     this->m_label_hist.set_text("FILTROS ▶" + img.get_filtro());
-    
+    this->m_qt_img.set_text("List Imagem :" + std::to_string(this->ci->qt));
 }
 
 
 //Mostra a Janela Novo filtro quando estiver oculta.
 void mainWindow::on_novo_filt(){
     this->m_box_list.show();
+    
+    //Esconde
+    this->m_box_lim.hide();
+
 }
 
 //Verifica qual Radio Button esta ativo
@@ -214,7 +223,12 @@ void mainWindow::on_config_algo(){
         }
         i++;
     }
-    std::cout << "Algo " << alg << std::endl; 
+    
+    if(alg == 1){
+        this->m_box_list.hide();
+        this->m_box_lim.show();
+        std::cout << "Algo " << alg << std::endl; 
+    }
     
 }
 
@@ -224,7 +238,12 @@ void mainWindow::on_aplic_lim(){
 
     this->ca->execute_limiarizacao(threshold,use_moments,this->ci);
 
-    this->m_ref_img = Gdk::Pixbuf::create_from_file(this->ci->list_image[this->ci->qt-1].get_nome_img(),400,-1); 
+    this->m_ref_img = Gdk::Pixbuf::create_from_file("img/" + this->ci->list_image[this->ci->qt-1].get_nome_img(),400,-1); 
     this->m_img.set(this->m_ref_img);
     this->m_label.set_text(this->ci->list_image[this->ci->qt-1].get_filtro());
+    this->m_qt_img.set_label("Imagem:" + std::to_string(this->ci->qt));
+
+    for(int i = 0; i < this->ci->qt; i++){
+        std::cout << ci->list_image[i].get_nome_img() << std::endl;
+    }
 }

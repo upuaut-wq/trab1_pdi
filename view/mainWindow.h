@@ -58,11 +58,13 @@ class mainWindow:public Gtk::Window{
 
         //Janela de configurações
         Gtk::Box m_box_conf;
-        Gtk::Box m_box_aplic;
-        Gtk::Button m_btn_aplic;
-        Gtk::Button m_btn_algo;
         Gtk::Frame m_frm_conf;
         Gtk::Label m_lab_jan_conf;
+        
+        //Status
+        Gtk::Separator m_sep_dir;
+        Gtk::Box m_box_status;
+        Gtk::Label m_qt_img;
 
         //Image
         Gtk::Image m_img;
@@ -81,6 +83,7 @@ class mainWindow:public Gtk::Window{
         Gtk::Box m_box_alg;
         Gtk::RadioButtonGroup m_grupo_rb;
         Gtk::RadioButton m_radio_btns[16];
+        Gtk::Button m_aplic_alg;
 
         //Interface algorimo Limiarizacao
         Gtk::Label m_lb_lim;

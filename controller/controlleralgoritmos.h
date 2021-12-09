@@ -17,7 +17,8 @@ class controllerAlgoritmos{
     public:
         controllerAlgoritmos();
         void load_pack_image();
-        void execute_limiarizacao(float  threshold,bool moment,controllerImage *contImg);
+        boolean write_img(modelImage img);
+        boolean execute_limiarizacao(float threshold, bool moment, modelImage img);
         ~controllerAlgoritmos();
 };
 
